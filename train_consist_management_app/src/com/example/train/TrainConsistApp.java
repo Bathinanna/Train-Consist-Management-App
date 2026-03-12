@@ -3,28 +3,36 @@ package com.example.train;
 /*
  * @author developer
  * @version 13.0
- * Added Performance Comparsion metric  to Train Consist Management App 
+ * Added Custom checked exception  to Train Consist Management App 
  * 
  */
 
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
+
+// Custom checked exception
+class InvalidCapacityException extends Exception {
+    public InvalidCapacityException(String message) {
+        super(message);
+    }
+}
 
 public class TrainConsistApp {
 
-    static class Bogie {
+    static class PassengerBogie {
         private String name;
         private int capacity;
 
-        public Bogie(String name, int capacity) {
+        // Constructor enforces fail-fast validation
+        public PassengerBogie(String name, int capacity) throws InvalidCapacityException {
+            if (capacity <= 0) {
+                throw new InvalidCapacityException(
+                    "Invalid capacity for bogie '" + name + "': " + capacity + ". Capacity must be > 0."
+                );
+            }
             this.name = name;
             this.capacity = capacity;
-        }
-
-        public int getCapacity() {
-            return capacity;
         }
 
         @Override
@@ -34,60 +42,44 @@ public class TrainConsistApp {
     }
 
     public static void main(String[] args) {
-        System.out.println("======================================");
-        System.out.println("UC13 - Performance Comparison (Loops vs Streams)");
-        System.out.println("======================================");
+        System.out.println("==============================================");
+        System.out.println("UC14 - Handle Invalid Bogie Capacity (Custom Exception)");
+        System.out.println("==============================================");
 
-        // Test data: large collection of bogies
-        List<Bogie> bogies = new ArrayList<>();
-        for (int i = 1; i <= 200_000; i++) {
-            int capacity = (i % 4 == 0) ? 72 : (i % 3 == 0) ? 56 : 24;
-            bogies.add(new Bogie("Bogie-" + i, capacity));
+        List<PassengerBogie> trainConsist = new ArrayList<>();
+
+        // Try creating bogies (both valid and invalid)
+        try {
+            trainConsist.add(new PassengerBogie("Sleeper", 72));
+            System.out.println("Added: Sleeper");
+        } catch (InvalidCapacityException e) {
+            System.out.println("Error: " + e.getMessage());
         }
 
-        // -------------------------------
-        // Loop-based filtering benchmark
-        // -------------------------------
-        long loopStart = System.nanoTime();
-
-        List<Bogie> loopFiltered = new ArrayList<>();
-        for (Bogie bogie : bogies) {
-            if (bogie.getCapacity() > 60) {
-                loopFiltered.add(bogie);
-            }
+        try {
+            trainConsist.add(new PassengerBogie("AC Chair", 0)); // invalid
+            System.out.println("Added: AC Chair");
+        } catch (InvalidCapacityException e) {
+            System.out.println("Error: " + e.getMessage());
         }
 
-        long loopEnd = System.nanoTime();
-        long loopElapsed = loopEnd - loopStart;
-
-        // --------------------------------
-        // Stream-based filtering benchmark
-        // --------------------------------
-        long streamStart = System.nanoTime();
-
-        List<Bogie> streamFiltered = bogies.stream()
-                .filter(b -> b.getCapacity() > 60)
-                .collect(Collectors.toList());
-
-        long streamEnd = System.nanoTime();
-        long streamElapsed = streamEnd - streamStart;
-
-        // Output results
-        System.out.println("\nFiltered Count (Loop)   : " + loopFiltered.size());
-        System.out.println("Filtered Count (Stream) : " + streamFiltered.size());
-
-        System.out.println("\nExecution Time:");
-        System.out.println("Loop   : " + loopElapsed + " ns");
-        System.out.println("Stream : " + streamElapsed + " ns");
-
-        if (loopElapsed < streamElapsed) {
-            System.out.println("\nResult: Loop is faster in this run.");
-        } else if (streamElapsed < loopElapsed) {
-            System.out.println("\nResult: Stream is faster in this run.");
-        } else {
-            System.out.println("\nResult: Both took the same time in this run.");
+        try {
+            trainConsist.add(new PassengerBogie("First Class", -10)); // invalid
+            System.out.println("Added: First Class");
+        } catch (InvalidCapacityException e) {
+            System.out.println("Error: " + e.getMessage());
         }
 
-        System.out.println("\nUC13 benchmarking completed...");
+        try {
+            trainConsist.add(new PassengerBogie("Second Sitting", 108));
+            System.out.println("Added: Second Sitting");
+        } catch (InvalidCapacityException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+
+        System.out.println("\nFinal Valid Train Consist:");
+        trainConsist.forEach(System.out::println);
+
+        System.out.println("\nUC14 validation completed...");
     }
 }
