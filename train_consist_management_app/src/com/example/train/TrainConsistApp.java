@@ -1,75 +1,50 @@
 package com.example.train;
 
-
-
 public class TrainConsistApp {
+    public static void main(String[] args) {
+        System.out.println("==========================================================");
+        System.out.println("UC16 - Sort Passenger Bogies by Capacity (Bubble Sort)");
+        System.out.println("==========================================================");
 
-    // Custom runtime exception (unchecked)
-    static class CargoSafetyException extends RuntimeException {
-        public CargoSafetyException(String message) {
-            super(message);
-        }
-    }
+        // Passenger bogie capacities (unsorted)
+        int[] capacities = {72, 24, 56, 108, 48, 80};
 
-    static class GoodsBogie {
-        private String bogieId;
-        private String shape; // Rectangular / Cylindrical
-        private String cargo; // Assigned at runtime
+        System.out.print("\nBefore Sorting: ");
+        printArray(capacities);
 
-        public GoodsBogie(String bogieId, String shape) {
-            this.bogieId = bogieId;
-            this.shape = shape;
-        }
+        // Bubble Sort (ascending)
+        int n = capacities.length;
+        for (int i = 0; i < n - 1; i++) {
+            boolean swapped = false;
 
-        public void assignCargo(String cargo) {
-            try {
-                System.out.println("\nAssigning cargo '" + cargo + "' to " + bogieId + " (" + shape + ")...");
-
-                // Safety rule:
-                // Petroleum must NOT be assigned to Rectangular bogie
-                if ("Rectangular".equalsIgnoreCase(shape) && "Petroleum".equalsIgnoreCase(cargo)) {
-                    throw new CargoSafetyException(
-                        "Unsafe assignment! Petroleum cannot be assigned to Rectangular bogie " + bogieId
-                    );
+            for (int j = 0; j < n - 1 - i; j++) {
+                if (capacities[j] > capacities[j + 1]) {
+                    // swap adjacent elements
+                    int temp = capacities[j];
+                    capacities[j] = capacities[j + 1];
+                    capacities[j + 1] = temp;
+                    swapped = true;
                 }
+            }
 
-                // Safe assignment
-                this.cargo = cargo;
-                System.out.println("Cargo assigned successfully to " + bogieId + ".");
-            } catch (CargoSafetyException e) {
-                System.out.println("ERROR: " + e.getMessage());
-            } finally {
-                // Always executes (success or failure)
-                System.out.println("Assignment attempt completed for " + bogieId + ".");
+            // optimization: stop early if already sorted
+            if (!swapped) {
+                break;
             }
         }
 
-        @Override
-        public String toString() {
-            return "GoodsBogie{id='" + bogieId + "', shape='" + shape + "', cargo='" + cargo + "'}";
-        }
+        System.out.print("After Sorting : ");
+        printArray(capacities);
+
+        System.out.println("\nUC16 bubble sort completed successfully...");
     }
 
-    public static void main(String[] args) {
-        System.out.println("=======================================================");
-        System.out.println("UC15 - Safe Cargo Assignment Using try-catch-finally");
-        System.out.println("=======================================================");
-
-        GoodsBogie bogie1 = new GoodsBogie("GB101", "Rectangular");
-        GoodsBogie bogie2 = new GoodsBogie("GB102", "Cylindrical");
-
-        // Unsafe assignment (handled safely)
-        bogie1.assignCargo("Petroleum");
-
-        // Safe assignments
-        bogie1.assignCargo("Coal");
-        bogie2.assignCargo("Petroleum");
-
-        // Application continues safely
-        System.out.println("\nFinal Bogie States:");
-        System.out.println(bogie1);
-        System.out.println(bogie2);
-
-        System.out.println("\nUC15 runtime handling completed...");
+    private static void printArray(int[] arr) {
+        System.out.print("[");
+        for (int i = 0; i < arr.length; i++) {
+            System.out.print(arr[i]);
+            if (i < arr.length - 1) System.out.print(", ");
+        }
+        System.out.println("]");
     }
 }
