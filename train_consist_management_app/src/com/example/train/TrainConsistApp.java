@@ -6,27 +6,25 @@ import java.util.stream.Collectors;
 
 /*
  * @author developer
- * @version 9.0
- * Coded Grouping 
+ * @version 10.0
+ * Aggregation using reduce() 
  */
 
-import java.util.Map;
+
 
 public class TrainConsistApp {
 
     static class Bogie {
         private String name;
         private int capacity;
-        private String type; // Passenger or Goods
 
-        public Bogie(String name, int capacity, String type) {
+        public Bogie(String name, int capacity) {
             this.name = name;
             this.capacity = capacity;
-            this.type = type;
         }
 
-        public String getType() {
-            return type;
+        public int getCapacity() {
+            return capacity;
         }
 
         @Override
@@ -37,25 +35,25 @@ public class TrainConsistApp {
 
     public static void main(String[] args) {
         System.out.println("======================================");
-        System.out.println("UC9 - Group Bogies by Type");
+        System.out.println("UC10 - Count Total Seats in Train (reduce)");
         System.out.println("======================================");
 
         List<Bogie> bogies = new ArrayList<>();
-        bogies.add(new Bogie("Sleeper", 72, "Passenger"));
-        bogies.add(new Bogie("AC Chair", 56, "Passenger"));
-        bogies.add(new Bogie("First Class", 24, "Passenger"));
-        bogies.add(new Bogie("Cargo", 120, "Goods"));
-        bogies.add(new Bogie("Oil Tanker", 80, "Goods"));
+        bogies.add(new Bogie("Sleeper", 72));
+        bogies.add(new Bogie("AC Chair", 56));
+        bogies.add(new Bogie("First Class", 24));
+        bogies.add(new Bogie("Second Sitting", 108));
 
-        // Group by bogie type
-        Map<String, List<Bogie>> groupedBogies = bogies.stream()
-                .collect(Collectors.groupingBy(Bogie::getType));
+        // map() + reduce() to compute total seating capacity
+        int totalSeats = bogies.stream()
+                .map(b -> b.getCapacity())
+                .reduce(0, Integer::sum);
 
-        System.out.println("\nGrouped Bogie Structure:");
-        groupedBogies.forEach((type, list) -> {
-            System.out.println(type + " : " + list);
-        });
+        System.out.println("\nBogie Details:");
+        bogies.forEach(System.out::println);
 
-        System.out.println("\nUC9 grouping completed successfully...");
+        System.out.println("\nTotal Seating Capacity: " + totalSeats);
+
+        System.out.println("\nUC10 aggregation completed successfully...");
     }
 }
