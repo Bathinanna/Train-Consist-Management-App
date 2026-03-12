@@ -2,69 +2,92 @@ package com.example.train;
 
 /*
  * @author developer
- * @version 12.0
- * Added SafetyCompliance to Train Consist Management App 
+ * @version 13.0
+ * Added Performance Comparsion metric  to Train Consist Management App 
  * 
  */
 
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class TrainConsistApp {
 
-    // Goods Bogie model
-    static class GoodsBogie {
-        private String type;   // Rectangular / Cylindrical
-        private String cargo;  // Coal / Petroleum / etc.
+    static class Bogie {
+        private String name;
+        private int capacity;
 
-        public GoodsBogie(String type, String cargo) {
-            this.type = type;
-            this.cargo = cargo;
+        public Bogie(String name, int capacity) {
+            this.name = name;
+            this.capacity = capacity;
         }
 
-        public String getType() {
-            return type;
-        }
-
-        public String getCargo() {
-            return cargo;
+        public int getCapacity() {
+            return capacity;
         }
 
         @Override
         public String toString() {
-            return "Type=" + type + ", Cargo=" + cargo;
+            return name + " -> " + capacity;
         }
     }
 
     public static void main(String[] args) {
         System.out.println("======================================");
-        System.out.println("UC12 - Safety Compliance Check for Goods Bogies");
+        System.out.println("UC13 - Performance Comparison (Loops vs Streams)");
         System.out.println("======================================");
 
-        // Prepare goods bogies
-        List<GoodsBogie> goodsBogies = new ArrayList<>();
-        goodsBogies.add(new GoodsBogie("Rectangular", "Coal"));
-        goodsBogies.add(new GoodsBogie("Cylindrical", "Petroleum"));
-        goodsBogies.add(new GoodsBogie("Rectangular", "Cement"));
-        // goodsBogies.add(new GoodsBogie("Cylindrical", "Coal")); // Uncomment to test invalid case
+        // Test data: large collection of bogies
+        List<Bogie> bogies = new ArrayList<>();
+        for (int i = 1; i <= 200_000; i++) {
+            int capacity = (i % 4 == 0) ? 72 : (i % 3 == 0) ? 56 : 24;
+            bogies.add(new Bogie("Bogie-" + i, capacity));
+        }
 
-        System.out.println("\nGoods Bogies:");
-        goodsBogies.forEach(System.out::println);
+        // -------------------------------
+        // Loop-based filtering benchmark
+        // -------------------------------
+        long loopStart = System.nanoTime();
 
-        // Safety rule:
-        // If type is Cylindrical, cargo must be Petroleum
-        boolean isSafetyCompliant = goodsBogies.stream().allMatch(bogie ->
-                !"Cylindrical".equalsIgnoreCase(bogie.getType()) ||
-                "Petroleum".equalsIgnoreCase(bogie.getCargo())
-        );
+        List<Bogie> loopFiltered = new ArrayList<>();
+        for (Bogie bogie : bogies) {
+            if (bogie.getCapacity() > 60) {
+                loopFiltered.add(bogie);
+            }
+        }
 
-        System.out.println("\nSafety Compliance Status: " +
-                (isSafetyCompliant ? "SAFE ✅" : "NOT SAFE ❌"));
+        long loopEnd = System.nanoTime();
+        long loopElapsed = loopEnd - loopStart;
 
-        System.out.println("\nRule Applied:");
-        System.out.println("Cylindrical bogie -> only Petroleum allowed");
+        // --------------------------------
+        // Stream-based filtering benchmark
+        // --------------------------------
+        long streamStart = System.nanoTime();
 
-        System.out.println("\nUC12 safety validation completed...");
+        List<Bogie> streamFiltered = bogies.stream()
+                .filter(b -> b.getCapacity() > 60)
+                .collect(Collectors.toList());
+
+        long streamEnd = System.nanoTime();
+        long streamElapsed = streamEnd - streamStart;
+
+        // Output results
+        System.out.println("\nFiltered Count (Loop)   : " + loopFiltered.size());
+        System.out.println("Filtered Count (Stream) : " + streamFiltered.size());
+
+        System.out.println("\nExecution Time:");
+        System.out.println("Loop   : " + loopElapsed + " ns");
+        System.out.println("Stream : " + streamElapsed + " ns");
+
+        if (loopElapsed < streamElapsed) {
+            System.out.println("\nResult: Loop is faster in this run.");
+        } else if (streamElapsed < loopElapsed) {
+            System.out.println("\nResult: Stream is faster in this run.");
+        } else {
+            System.out.println("\nResult: Both took the same time in this run.");
+        }
+
+        System.out.println("\nUC13 benchmarking completed...");
     }
 }
