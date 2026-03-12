@@ -2,49 +2,43 @@ package com.example.train;
 
 public class TrainConsistApp {
     public static void main(String[] args) {
-        System.out.println("==========================================================");
-        System.out.println("UC16 - Sort Passenger Bogies by Capacity (Bubble Sort)");
-        System.out.println("==========================================================");
+        System.out.println("==============================================");
+        System.out.println("UC18 - Linear Search for Bogie ID");
+        System.out.println("==============================================");
 
-        // Passenger bogie capacities (unsorted)
-        int[] capacities = {72, 24, 56, 108, 48, 80};
+        // Unsorted bogie IDs
+        String[] bogieIds = {"BG104", "BG101", "BG109", "BG102", "BG107"};
 
-        System.out.print("\nBefore Sorting: ");
-        printArray(capacities);
+        // Search key (you can change this value)
+        String searchKey = "BG102";
 
-        // Bubble Sort (ascending)
-        int n = capacities.length;
-        for (int i = 0; i < n - 1; i++) {
-            boolean swapped = false;
+        boolean found = false;
+        int foundIndex = -1;
 
-            for (int j = 0; j < n - 1 - i; j++) {
-                if (capacities[j] > capacities[j + 1]) {
-                    // swap adjacent elements
-                    int temp = capacities[j];
-                    capacities[j] = capacities[j + 1];
-                    capacities[j + 1] = temp;
-                    swapped = true;
-                }
-            }
-
-            // optimization: stop early if already sorted
-            if (!swapped) {
-                break;
+        // Linear Search
+        for (int i = 0; i < bogieIds.length; i++) {
+            if (bogieIds[i].equals(searchKey)) {
+                found = true;
+                foundIndex = i;
+                break; // Early termination
             }
         }
 
-        System.out.print("After Sorting : ");
-        printArray(capacities);
-
-        System.out.println("\nUC16 bubble sort completed successfully...");
-    }
-
-    private static void printArray(int[] arr) {
-        System.out.print("[");
-        for (int i = 0; i < arr.length; i++) {
-            System.out.print(arr[i]);
-            if (i < arr.length - 1) System.out.print(", ");
+        System.out.print("\nBogie IDs: [");
+        for (int i = 0; i < bogieIds.length; i++) {
+            System.out.print(bogieIds[i]);
+            if (i < bogieIds.length - 1) System.out.print(", ");
         }
         System.out.println("]");
+
+        System.out.println("Search Key: " + searchKey);
+
+        if (found) {
+            System.out.println("Result: Bogie ID found at index " + foundIndex + ".");
+        } else {
+            System.out.println("Result: Bogie ID not found.");
+        }
+
+        System.out.println("\nUC18 linear search completed successfully...");
     }
 }
