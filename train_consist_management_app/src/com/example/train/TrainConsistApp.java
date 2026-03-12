@@ -2,59 +2,69 @@ package com.example.train;
 
 /*
  * @author developer
- * @version 11.0
- * Regex Operations are done Here .
+ * @version 12.0
+ * Added SafetyCompliance to Train Consist Management App 
  * 
  */
 
-import java.util.Scanner;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class TrainConsistApp {
 
+    // Goods Bogie model
+    static class GoodsBogie {
+        private String type;   // Rectangular / Cylindrical
+        private String cargo;  // Coal / Petroleum / etc.
+
+        public GoodsBogie(String type, String cargo) {
+            this.type = type;
+            this.cargo = cargo;
+        }
+
+        public String getType() {
+            return type;
+        }
+
+        public String getCargo() {
+            return cargo;
+        }
+
+        @Override
+        public String toString() {
+            return "Type=" + type + ", Cargo=" + cargo;
+        }
+    }
+
     public static void main(String[] args) {
         System.out.println("======================================");
-        System.out.println("UC11 - Validate Train ID & Cargo Codes (Regex)");
+        System.out.println("UC12 - Safety Compliance Check for Goods Bogies");
         System.out.println("======================================");
 
-        Scanner scanner = new Scanner(System.in);
+        // Prepare goods bogies
+        List<GoodsBogie> goodsBogies = new ArrayList<>();
+        goodsBogies.add(new GoodsBogie("Rectangular", "Coal"));
+        goodsBogies.add(new GoodsBogie("Cylindrical", "Petroleum"));
+        goodsBogies.add(new GoodsBogie("Rectangular", "Cement"));
+        // goodsBogies.add(new GoodsBogie("Cylindrical", "Coal")); // Uncomment to test invalid case
 
-        // Input
-        System.out.print("\nEnter Train ID (format: TRN-1234): ");
-        String trainId = scanner.nextLine().trim();
+        System.out.println("\nGoods Bogies:");
+        goodsBogies.forEach(System.out::println);
 
-        System.out.print("Enter Cargo Code (format: PET-AB): ");
-        String cargoCode = scanner.nextLine().trim();
+        // Safety rule:
+        // If type is Cylindrical, cargo must be Petroleum
+        boolean isSafetyCompliant = goodsBogies.stream().allMatch(bogie ->
+                !"Cylindrical".equalsIgnoreCase(bogie.getType()) ||
+                "Petroleum".equalsIgnoreCase(bogie.getCargo())
+        );
 
-        // Regex patterns
-        String trainIdRegex = "TRN-\\d{4}";
-        String cargoCodeRegex = "PET-[A-Z]{2}";
+        System.out.println("\nSafety Compliance Status: " +
+                (isSafetyCompliant ? "SAFE ✅" : "NOT SAFE ❌"));
 
-        // Compile patterns
-        Pattern trainPattern = Pattern.compile(trainIdRegex);
-        Pattern cargoPattern = Pattern.compile(cargoCodeRegex);
+        System.out.println("\nRule Applied:");
+        System.out.println("Cylindrical bogie -> only Petroleum allowed");
 
-        // Matchers
-        Matcher trainMatcher = trainPattern.matcher(trainId);
-        Matcher cargoMatcher = cargoPattern.matcher(cargoCode);
-
-        // Validate
-        boolean isTrainIdValid = trainMatcher.matches();
-        boolean isCargoCodeValid = cargoMatcher.matches();
-
-        System.out.println("\nValidation Results:");
-        System.out.println("Train ID '" + trainId + "' is " + (isTrainIdValid ? "VALID" : "INVALID"));
-        System.out.println("Cargo Code '" + cargoCode + "' is " + (isCargoCodeValid ? "VALID" : "INVALID"));
-
-        if (!isTrainIdValid) {
-            System.out.println("Error: Train ID must match format TRN-1234");
-        }
-        if (!isCargoCodeValid) {
-            System.out.println("Error: Cargo Code must match format PET-AB");
-        }
-
-        System.out.println("\nUC11 validation completed...");
-        scanner.close();
+        System.out.println("\nUC12 safety validation completed...");
     }
 }
